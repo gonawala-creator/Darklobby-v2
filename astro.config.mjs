@@ -9,7 +9,4 @@ export default defineConfig({
       applyBaseStyles: true,
     }),
   ],
-  redirects: {
-    '/admin': '/admin/index.html',
-  },
 });

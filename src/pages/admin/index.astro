@@ -1,16 +1,20 @@
+---
+// Decap CMS Admin Portal for Dark Lobby
+// Serves /admin and /admin/ directly with zero redirect loops
+---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content="noindex, nofollow" />
     <title>Dark Lobby // CMS Admin Portal</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Netlify Identity Widget for Git Gateway Authentication -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-    <style>
+    <style is:inline>
       /* Dark Lobby Cyberpunk styling for Decap CMS loading & container */
       body {
         margin: 0;
@@ -31,15 +35,15 @@
   </head>
   <body>
     <!-- Decap CMS Application Core -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script is:inline src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <script>
+    <script is:inline>
       // Netlify Identity Login redirect helper
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", function(user) {
           if (!user) {
             window.netlifyIdentity.on("login", function() {
-              document.location.href = "/admin/";
+              document.location.reload();
             });
           }
         });
