@@ -1,0 +1,136 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Local backend proxy allows offline development with `npx decap-server`
+local_backend: true
+
+# Media uploads directory
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+site_url: "https://darklobby.site"
+display_url: "https://darklobby.site"
+logo_url: "/favicon.svg"
+
+collections:
+  - name: "news"
+    label: "Gaming News & Dispatches"
+    label_singular: "Article"
+    folder: "src/content/news"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string", hint: "Article headline" }
+      - { label: "Description / Excerpt", name: "description", widget: "text", hint: "Summary displayed in cards and SEO" }
+      - { label: "Publish Date", name: "pubDate", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Category", name: "category", widget: "select", options: ["Leaks", "Updates", "Patch Notes", "Hardware", "Reviews", "Esports", "Game Updates", "Industry Leaks"] }
+      - { label: "Featured Image / Thumbnail", name: "thumbnail", widget: "image", choose_url: true }
+      - { label: "Author", name: "author", widget: "string", default: "Marcus 'Viper' Vance" }
+      - { label: "Tags", name: "tags", widget: "list", default: ["Gaming", "News"] }
+      - { label: "Featured Article (Hero)", name: "featured", widget: "boolean", default: false, required: false }
+      - { label: "Estimated Read Time", name: "readTime", widget: "string", default: "4 min read", required: false }
+      - { label: "Rich Text Body", name: "body", widget: "markdown" }
+
+  - name: "settings"
+    label: "Site Settings & Monetization"
+    delete: false
+    files:
+      - name: "navigation"
+        label: "Navigation & Category Tabs"
+        file: "src/content/settings/navigation.json"
+        description: "Add, edit, reorder or remove navigation tabs and category filter tabs across Dark Lobby"
+        fields:
+          - label: "Navigation Tabs"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.name}} -> {{fields.href}}"
+            fields:
+              - { label: "Tab Name", name: "name", widget: "string" }
+              - { label: "Target URL / Anchor", name: "href", widget: "string" }
+              - { label: "Category Filter Key", name: "category", widget: "string", required: false, hint: "Match category (e.g. 'Leaks', 'Updates') or leave blank" }
+              - { label: "Visible in Menu", name: "visible", widget: "boolean", default: true }
+
+      - name: "ads"
+        label: "Ad Placement & Monetization"
+        file: "src/content/settings/ads.json"
+        description: "Configure sponsored banners, Google AdSense scripts, and global ad visibility"
+        fields:
+          - { label: "Master Ad Toggle (Enable Ads Globally)", name: "enabled", widget: "boolean", default: true }
+          
+          - label: "Google AdSense Global Integration"
+            name: "adsense"
+            widget: "object"
+            fields:
+              - { label: "Enable Google AdSense Globally", name: "enabled", widget: "boolean", default: false, hint: "Turn ON to enable Google AdSense ads on darklobby.site" }
+              - { label: "AdSense Publisher ID (Client ID)", name: "clientId", widget: "string", default: "ca-pub-XXXXXXXXXXXXXXXX", required: false, hint: "Your AdSense publisher ID (e.g., ca-pub-1234567890123456). Injects verification & script into <head>." }
+              - { label: "Enable Google Auto Ads", name: "autoAds", widget: "boolean", default: true, hint: "Allows Google AI to place automated responsive ads throughout the site" }
+
+          - label: "Header Ad Banner"
+            name: "header"
+            widget: "object"
+            fields:
+              - { label: "Enable Header Ad", name: "enabled", widget: "boolean", default: true }
+              - { label: "Ad Type", name: "type", widget: "select", options: ["custom_banner", "script"], default: "custom_banner", hint: "Choose 'script' to display a Google AdSense ad unit, or 'custom_banner' for direct partner sponsor" }
+              - { label: "AdSense / Script Snippet", name: "script", widget: "text", required: false, hint: "Paste your Google AdSense <ins class='adsbygoogle' ...> ad unit code here" }
+              - { label: "Sponsor Badge", name: "badge", widget: "string", default: "SPONSORED INTEL", required: false }
+              - { label: "Sponsor Tagline", name: "tagline", widget: "string", default: "LEVEL UP YOUR BATTLESTATION", required: false }
+              - { label: "CTA Button Text", name: "ctaText", widget: "string", default: "CLAIM SPONSOR GEAR", required: false }
+              - { label: "Banner Image", name: "image", widget: "image", choose_url: true, required: false }
+              - { label: "Target Link URL", name: "url", widget: "string", required: false }
+              - { label: "Alt / Description", name: "alt", widget: "string", required: false }
+
+          - label: "In-Feed Sponsored Article Card (Home Feed)"
+            name: "inFeed"
+            widget: "object"
+            fields:
+              - { label: "Enable In-Feed Ad Card", name: "enabled", widget: "boolean", default: true }
+              - { label: "Ad Type", name: "type", widget: "select", options: ["custom_banner", "script"], default: "custom_banner", hint: "Choose 'script' to paste an AdSense In-Feed ad unit code" }
+              - { label: "AdSense / Script Snippet", name: "script", widget: "text", required: false, hint: "Paste your Google AdSense In-Feed ad unit code here" }
+              - { label: "Sponsor Badge", name: "badge", widget: "string", default: "SPONSORED DEAL", required: false }
+              - { label: "Card Category Tag", name: "tag", widget: "string", default: "Hardware & Rig", required: false }
+              - { label: "Card Headline", name: "title", widget: "string", default: "Secretlab TITAN Evo 2026 // Cyberpunk Gaming Edition" }
+              - { label: "Short Description", name: "description", widget: "text", default: "Ergonomic gaming battle station throne with cold-cure foam and magnetic 4D armrests." }
+              - { label: "Product / Sponsor Image", name: "image", widget: "image", choose_url: true, required: false }
+              - { label: "Target URL Link", name: "url", widget: "string", required: false }
+              - { label: "CTA Button Text", name: "ctaText", widget: "string", default: "Claim Deal", required: false }
+
+          - label: "In-Article Ad (Mid-Content)"
+            name: "inArticle"
+            widget: "object"
+            fields:
+              - { label: "Enable In-Article Ad", name: "enabled", widget: "boolean", default: true }
+              - { label: "Ad Type", name: "type", widget: "select", options: ["custom_banner", "script"], default: "custom_banner", hint: "Choose 'script' to place Google AdSense In-Article ad unit" }
+              - { label: "AdSense / Script Snippet", name: "script", widget: "text", required: false, hint: "Paste your Google AdSense In-Article code here" }
+              - { label: "Sponsor Badge", name: "badge", widget: "string", default: "PRO MEMBERSHIP", required: false }
+              - { label: "Sponsor Tagline", name: "tagline", widget: "string", default: "JOIN THE ELITE GAMING UNDERGROUND", required: false }
+              - { label: "CTA Button Text", name: "ctaText", widget: "string", default: "UNLOCK INTEL PASS", required: false }
+              - { label: "Banner Image", name: "image", widget: "image", choose_url: true, required: false }
+              - { label: "Target Link URL", name: "url", widget: "string", required: false }
+              - { label: "Alt / Description", name: "alt", widget: "string", required: false }
+
+          - label: "Sticky Bottom Mini Banner (Collapsible / Non-Intrusive)"
+            name: "stickyBottom"
+            widget: "object"
+            fields:
+              - { label: "Enable Sticky Bottom Ad", name: "enabled", widget: "boolean", default: true }
+              - { label: "Sponsor Badge", name: "badge", widget: "string", default: "FLASH PARTNER DEAL", required: false }
+              - { label: "Promo Text", name: "text", widget: "string", default: "RTX 5090 Ready Power Supplies: 1200W ATX 3.1 Tier-A Gold Units now shipping." }
+              - { label: "CTA Button Text", name: "ctaText", widget: "string", default: "Claim 15% Off", required: false }
+              - { label: "Target Link URL", name: "url", widget: "string", required: false }
+
+          - label: "Footer / Sidebar Ad Banner"
+            name: "footer"
+            widget: "object"
+            fields:
+              - { label: "Enable Footer Ad", name: "enabled", widget: "boolean", default: true }
+              - { label: "Ad Type", name: "type", widget: "select", options: ["custom_banner", "script"], default: "custom_banner", hint: "Choose 'script' for Google AdSense Display Banner" }
+              - { label: "AdSense / Script Snippet", name: "script", widget: "text", required: false, hint: "Paste your Google AdSense Display Banner code here" }
+              - { label: "Sponsor Badge", name: "badge", widget: "string", default: "PARTNER TELEMETRY", required: false }
+              - { label: "Sponsor Tagline", name: "tagline", widget: "string", default: "TOURNAMENT GRADE SWITCHES", required: false }
+              - { label: "CTA Button Text", name: "ctaText", widget: "string", default: "EXPLORE TOURNAMENT GEAR", required: false }
+              - { label: "Banner Image", name: "image", widget: "image", choose_url: true, required: false }
+              - { label: "Target Link URL", name: "url", widget: "string", required: false }
+              - { label: "Alt / Description", name: "alt", widget: "string", required: false }

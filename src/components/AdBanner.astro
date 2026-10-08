@@ -1,0 +1,81 @@
+---
+import adsData from '../content/settings/ads.json';
+
+interface Props {
+  slotType: 'header' | 'inArticle' | 'footer';
+  class?: string;
+}
+
+const { slotType, class: className = '' } = Astro.props;
+
+// Determine if ads are active
+const isGloballyEnabled = adsData && adsData.enabled;
+const adSlot = isGloballyEnabled && adsData[slotType] ? adsData[slotType] : null;
+const isSlotActive = adSlot && adSlot.enabled;
+---
+
+{isSlotActive && (
+  <aside
+    class={`w-full overflow-hidden my-6 ${className}`}
+    aria-label="Advertisement Banner"
+  >
+    <!-- Ad Slot Label -->
+    <div class="flex items-center justify-between px-1 mb-1.5 text-[10px] font-mono text-dark-muted">
+      <span class="flex items-center gap-1.5 uppercase tracking-widest text-dark-text/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse"></span>
+        SPONSORED INTEL // PARTNER TRANSMISSION
+      </span>
+      <span class="text-[9px] text-dark-muted/60">DARK LOBBY AD NETWORK</span>
+    </div>
+
+    {adSlot.type === 'script' && adSlot.script ? (
+      <!-- AdSense / Custom Script Embed Container -->
+      <div class="w-full min-h-[90px] p-2 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center overflow-hidden">
+        <div class="w-full flex justify-center text-center text-xs font-mono text-dark-muted" set:html={adSlot.script} />
+      </div>
+    ) : (
+      <!-- High-Tech Cyberpunk Custom Banner -->
+      <a
+        href={adSlot.url || '#'}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        class="group relative block w-full rounded-xl overflow-hidden border border-dark-border hover:border-neon-cyan/50 bg-dark-card transition-all duration-300 hover:shadow-card-elevated"
+      >
+        <div class="relative w-full h-24 sm:h-28 md:h-32 overflow-hidden bg-dark-bg">
+          <!-- Background Image with Zoom & Dark Gradient -->
+          <img
+            src={adSlot.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'}
+            alt={adSlot.alt || 'Sponsored Partner'}
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-40 group-hover:opacity-50"
+          />
+          <div class="absolute inset-0 bg-gradient-to-r from-dark-card via-dark-card/80 to-transparent"></div>
+
+          <!-- Banner Content Overlay -->
+          <div class="absolute inset-0 p-4 sm:p-6 flex items-center justify-between gap-4">
+            <div class="space-y-1 max-w-xl">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30">
+                {adSlot.badge || 'PRO SPONSOR'}
+              </span>
+              <h4 class="font-display font-bold text-sm sm:text-base md:text-lg text-white group-hover:text-neon-cyan transition-colors line-clamp-1">
+                {adSlot.tagline || adSlot.alt || 'Equip Next-Gen Gaming Gear'}
+              </h4>
+              <p class="hidden sm:block text-xs text-dark-text/80 line-clamp-1 font-mono">
+                {adSlot.alt}
+              </p>
+            </div>
+
+            <!-- CTA Pill Button -->
+            <div class="shrink-0">
+              <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded text-xs font-mono font-bold uppercase tracking-wider text-black bg-neon-cyan group-hover:bg-[#33f5ff] shadow-neon-cyan transition-all duration-200">
+                <span>{adSlot.ctaText || 'Explore'}</span>
+                <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+      </a>
+    )}
+  </aside>
+)}

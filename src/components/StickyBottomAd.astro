@@ -1,0 +1,81 @@
+---
+import adsData from '../content/settings/ads.json';
+
+const isGloballyEnabled = adsData && adsData.enabled;
+const stickyAd = isGloballyEnabled && adsData.stickyBottom ? adsData.stickyBottom : null;
+const isVisible = stickyAd && stickyAd.enabled;
+---
+
+{isVisible && (
+  <div
+    id="sticky-bottom-ad"
+    class="fixed bottom-0 inset-x-0 z-40 transition-transform duration-500 translate-y-0"
+    role="complementary"
+    aria-label="Sponsored Partner Notification"
+  >
+    <div class="max-w-6xl mx-auto px-4 pb-3 sm:pb-4">
+      <div class="relative flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-dark-card/95 backdrop-blur-xl border border-neon-cyan/40 shadow-[0_-4px_25px_rgba(0,240,255,0.15)] overflow-hidden">
+        
+        <!-- Left Glowing Indicator & Message -->
+        <div class="flex items-center gap-3 overflow-hidden">
+          <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 shrink-0">
+            {stickyAd.badge || 'SPONSOR'}
+          </span>
+          <span class="relative flex h-2 w-2 shrink-0 sm:hidden">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-neon-cyan"></span>
+          </span>
+          <p class="text-xs sm:text-sm text-dark-heading font-medium truncate">
+            {stickyAd.text || 'Exclusive Gaming Gear Drops Available'}
+          </p>
+        </div>
+
+        <!-- Right Action Button & Close Button -->
+        <div class="flex items-center gap-3 shrink-0">
+          <a
+            href={stickyAd.url || '#'}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="px-3 sm:px-4 py-1.5 rounded text-xs font-mono font-bold uppercase tracking-wider text-black bg-neon-cyan hover:bg-[#33f5ff] shadow-neon-cyan transition-all duration-200"
+          >
+            {stickyAd.ctaText || 'Learn More'}
+          </a>
+
+          <!-- Dismiss Button -->
+          <button
+            id="dismiss-sticky-ad"
+            type="button"
+            aria-label="Dismiss Sponsored Alert"
+            class="p-1 rounded text-dark-muted hover:text-white hover:bg-dark-bg focus:outline-none transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle dismissal with session memory so it does not disturb user again
+    const adBar = document.getElementById('sticky-bottom-ad');
+    const dismissBtn = document.getElementById('dismiss-sticky-ad');
+
+    if (adBar && dismissBtn) {
+      // Check if user already dismissed it during this session
+      if (sessionStorage.getItem('darklobby_sticky_ad_dismissed') === 'true') {
+        adBar.style.display = 'none';
+      }
+
+      dismissBtn.addEventListener('click', () => {
+        adBar.classList.add('translate-y-full');
+        sessionStorage.setItem('darklobby_sticky_ad_dismissed', 'true');
+        setTimeout(() => {
+          adBar.style.display = 'none';
+        }, 500);
+      });
+    }
+  </script>
+)}

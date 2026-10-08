@@ -1,0 +1,167 @@
+---
+const currentYear = new Date().getFullYear();
+
+const categories = [
+  { name: 'Industry Leaks', href: '/#leaks' },
+  { name: 'Game Updates', href: '/#updates' },
+  { name: 'Patch Notes', href: '/#patch-notes' },
+  { name: 'Hardware & Tech', href: '/#hardware' },
+  { name: 'Reviews & Deep Dives', href: '/#reviews' },
+];
+
+const platforms = [
+  { name: 'PC Gaming', href: '/' },
+  { name: 'PlayStation 5', href: '/' },
+  { name: 'Xbox Series X/S', href: '/' },
+  { name: 'Steam Deck & Handhelds', href: '/' },
+  { name: 'Nintendo Next', href: '/' },
+];
+
+const socials = [
+  {
+    name: 'Discord',
+    href: 'https://discord.com',
+    icon: `<path d="M18 6h0a14.5 14.5 0 0 0-4-1.2 9.4 9.4 0 0 0-.4 1.2 12.8 12.8 0 0 0-3.2 0 9.4 9.4 0 0 0-.4-1.2A14.5 14.5 0 0 0 6 6a15.8 15.8 0 0 0-2.4 10.8A14.7 14.7 0 0 0 8 19a11 11 0 0 0 1-1.7 9.8 9.8 0 0 1-1.6-.8l.4-.3c3.1 1.4 6.5 1.4 9.6 0l.4.3a9.8 9.8 0 0 1-1.6.8 11 11 0 0 0 1 1.7 14.7 14.7 0 0 0 4.4-2.2A15.8 15.8 0 0 0 18 6zM9.5 14.2c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6zm5 0c-.8 0-1.5-.7-1.5-1.6s.7-1.6 1.5-1.6 1.5.7 1.5 1.6-.7 1.6-1.5 1.6z"/>`,
+  },
+  {
+    name: 'X / Twitter',
+    href: 'https://x.com',
+    icon: `<path d="M4 4l6.5 7.5L4 20h2.5l5.2-6.5L16.2 20H20l-6.8-7.8L19.5 4h-2.5l-4.9 6-4.3-6H4z"/>`,
+  },
+  {
+    name: 'YouTube',
+    href: 'https://youtube.com',
+    icon: `<path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>`,
+  },
+  {
+    name: 'Steam',
+    href: 'https://store.steampowered.com',
+    icon: `<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0-9.8 8.1l4.9 2a3 3 0 0 1 3.9-1.9 3 3 0 0 1 2 3.8l4 2.8A10 10 0 0 0 12 2z"/>`,
+  },
+];
+---
+
+<footer class="mt-20 border-t border-dark-border bg-dark-card/90 relative overflow-hidden">
+  <!-- Subtle ambient glow lines -->
+  <div class="absolute top-0 left-1/4 w-96 h-[1px] bg-gradient-to-r from-transparent via-neon-green/60 to-transparent"></div>
+  <div class="absolute top-0 right-1/4 w-96 h-[1px] bg-gradient-to-r from-transparent via-neon-cyan/60 to-transparent"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+      
+      <!-- Brand & Mission statement (2 cols wide) -->
+      <div class="lg:col-span-2 space-y-4">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="relative flex items-center justify-center w-9 h-9 rounded bg-dark-bg border border-dark-border group-hover:border-neon-green transition-colors">
+            <svg class="w-5 h-5 text-neon-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
+          <span class="font-brand font-extrabold text-2xl tracking-wider text-white">
+            DARK<span class="text-neon-green">LOBBY</span>
+          </span>
+        </a>
+
+        <p class="text-sm text-dark-text max-w-sm leading-relaxed">
+          The central hub for high-octane gaming news, verified industry leaks, competitive patch notes, and hardware breakdowns. Built by gamers for enthusiasts.
+        </p>
+
+        <!-- Social Media Icons -->
+        <div class="flex items-center gap-3 pt-2">
+          {socials.map((social) => (
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.name}
+              class="w-9 h-9 rounded bg-dark-bg border border-dark-border flex items-center justify-center text-dark-text hover:text-neon-green hover:border-neon-green/50 hover:shadow-neon-green transition-all duration-200"
+            >
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <Fragment set:html={social.icon} />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Categories Column -->
+      <div>
+        <h4 class="font-display font-bold text-sm tracking-wider uppercase text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span>
+          Categories
+        </h4>
+        <ul class="space-y-2 text-sm">
+          {categories.map((cat) => (
+            <li>
+              <a href={cat.href} class="text-dark-text hover:text-neon-green transition-colors">
+                {cat.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Platforms Column -->
+      <div>
+        <h4 class="font-display font-bold text-sm tracking-wider uppercase text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-neon-cyan"></span>
+          Platforms
+        </h4>
+        <ul class="space-y-2 text-sm">
+          {platforms.map((plat) => (
+            <li>
+              <a href={plat.href} class="text-dark-text hover:text-neon-cyan transition-colors">
+                {plat.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Newsletter Box inside Footer -->
+      <div id="newsletter" class="space-y-3">
+        <h4 class="font-display font-bold text-sm tracking-wider uppercase text-white mb-2 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-neon-pink"></span>
+          Intel Dispatch
+        </h4>
+        <p class="text-xs text-dark-muted leading-relaxed">
+          Receive confidential leaks, zero-day patch alerts, and hardware drops directly in your inbox.
+        </p>
+        <form onsubmit="event.preventDefault(); alert('Transmission Received: You are now subscribed to Dark Lobby Intel.');" class="space-y-2">
+          <div class="relative">
+            <input
+              type="email"
+              required
+              placeholder="operator@nexus.gg"
+              class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded text-xs text-white placeholder-dark-muted focus:outline-none focus:border-neon-green focus:ring-1 focus:ring-neon-green transition-colors font-mono"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full py-2 bg-neon-green text-black font-mono font-bold text-xs uppercase tracking-wider rounded hover:bg-[#1aff75] transition-colors shadow-neon-green"
+          >
+            Authorize Feed
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Bottom copyright and status bar -->
+    <div class="mt-12 pt-6 border-t border-dark-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-dark-muted">
+      <div>
+        © {currentYear} DARK LOBBY (darklobby.site). All rights reserved.
+      </div>
+      <div class="flex items-center gap-4 text-[11px]">
+        <span class="flex items-center gap-1.5 text-neon-green">
+          <span class="h-1.5 w-1.5 rounded-full bg-neon-green animate-pulse"></span>
+          NETLIFY / CF PAGES STATIC DEPLOY
+        </span>
+        <span class="text-dark-border">•</span>
+        <span>LATENCY: 0ms EDGE CACHE</span>
+      </div>
+    </div>
+  </div>
+</footer>

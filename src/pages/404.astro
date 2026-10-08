@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 - Signal Lost | Dark Lobby"
+  description="Transmission lost. The requested gaming intel sector does not exist or has been redacted."
+>
+  <div class="min-h-[70vh] flex items-center justify-center px-4 py-16">
+    <div class="text-center max-w-lg space-y-6">
+      
+      <!-- Glitchy Error Code -->
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-pink-500/10 text-neon-pink border border-neon-pink/30 text-xs font-mono tracking-widest uppercase">
+        <span class="w-2 h-2 rounded-full bg-neon-pink animate-ping"></span>
+        ERROR 404 // SECTOR UNREACHABLE
+      </div>
+
+      <h1 class="font-display font-black text-6xl sm:text-8xl text-white tracking-wider">
+        4<span class="text-neon-green">0</span>4
+      </h1>
+
+      <p class="font-display text-xl text-dark-heading uppercase tracking-wide">
+        Transmission Terminated
+      </p>
+
+      <p class="text-sm text-dark-text font-mono leading-relaxed">
+        The coordinates you entered do not match any known dispatch in the Dark Lobby database. The files may have been redacted by publisher embargo or moved to classified archives.
+      </p>
+
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a
+          href="/"
+          class="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-mono font-bold uppercase tracking-wider text-black bg-neon-green hover:bg-[#1aff75] shadow-neon-green transition-all duration-200"
+        >
+          Return to Command HQ
+        </a>
+      </div>
+
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsCard from '../components/NewsCard.astro';
+import HeroSlideshow from '../components/HeroSlideshow.astro';
+import AdBanner from '../components/AdBanner.astro';
+import SponsoredCard from '../components/SponsoredCard.astro';
+import navigationData from '../content/settings/navigation.json';
+import { getCollection } from 'astro:content';
+
+import { formatTimeAgo, formatFullDate } from '../utils/date';
+
+// Fetch all gaming news from content collection
+const allNews = await getCollection('news');
+
+// Sort by pubDate descending (latest first)
+const sortedNews = allNews.sort(
+  (a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+
+
+// Categories list dynamically derived from navigation configuration
+const navCategories = (navigationData?.items || [])
+  .filter((item) => item.visible !== false)
+  .map((item) => item.category || item.name)
+  .filter(Boolean);
+
+const categories = ['All', ...new Set(navCategories.filter((c) => c !== 'All'))];
+---
+
+<BaseLayout
+  title="Dark Lobby | Elite Gaming News, Hardware Leaks & Patch Notes"
+  description="Stay ahead of the game with Dark Lobby. In-depth leaks, verified updates, comprehensive patch notes, and hardware benchmarks."
+>
+  <!-- Cyber Background Ambient Lights -->
+  <div class="relative overflow-hidden">
+
+    <!-- Hero Section (Compact & Well-proportioned) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-6">
+      
+      <!-- Breaking News Headline Banner (Compact) -->
+      <div class="mb-3.5 p-2 sm:p-2.5 rounded-lg bg-dark-card/80 border border-dark-border flex items-center gap-2.5 overflow-hidden">
+        <span class="px-2 py-0.5 rounded bg-neon-green/20 text-neon-green border border-neon-green/40 text-[11px] font-mono font-bold uppercase tracking-wider shrink-0 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+          FLASH INTEL
+        </span>
+        <div class="text-xs sm:text-sm text-dark-heading font-medium truncate">
+          <span class="text-neon-cyan font-mono mr-1.5">[HOT]</span>
+          Grand Theft Auto VI development telemetry leaks reveal 142 km² Leonida landmass & RAGE 9 weather simulation.
+        </div>
+      </div>
+
+      <!-- Main Featured Hero Slideshow (Latest 5 News, 4s Auto-cycle) -->
+      <HeroSlideshow posts={sortedNews} />
+    </section>
+
+    <!-- Sponsored Header Ad Slot -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <AdBanner slotType="header" />
+    </div>
+
+    <!-- News Grid & Filter Section -->
+    <section id="dispatches" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 border-t border-dark-border/60 scroll-mt-24">
+      
+      <!-- Section Header & Category Filters -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-mono text-neon-cyan uppercase tracking-widest mb-1">
+            <span class="w-2 h-2 bg-neon-cyan rounded-full"></span>
+            TRANSMISSION ARCHIVE
+          </div>
+          <h2 class="font-display font-black text-2xl sm:text-3xl text-white">
+            LATEST <span class="text-neon-green">DISPATCHES</span>
+          </h2>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex items-center gap-1.5 flex-wrap" id="category-filter-bar">
+          {categories.map((category) => (
+            <button
+              type="button"
+              data-filter={category}
+              class={`filter-btn px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider transition-all duration-200 border ${
+                category === 'All'
+                  ? 'bg-neon-green text-black border-neon-green font-bold shadow-neon-green'
+                  : 'bg-dark-card text-dark-text border-dark-border hover:border-dark-borderHover hover:text-white'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Responsive Articles Grid -->
+      <div
+        id="articles-grid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+      >
+        {sortedNews.map((article, index) => (
+          <>
+            <div
+              class="article-item"
+              data-category={article.data.category}
+            >
+              <NewsCard
+                title={article.data.title}
+                description={article.data.description}
+                pubDate={article.data.pubDate}
+                category={article.data.category}
+                thumbnail={article.data.thumbnail}
+                author={article.data.author}
+                slug={article.slug}
+                tags={article.data.tags}
+                readTime={article.data.readTime}
+              />
+            </div>
+            {index === 2 && (
+              <div class="article-item" data-category="Hardware">
+                <SponsoredCard />
+              </div>
+            )}
+          </>
+        ))}
+      </div>
+
+      <!-- Empty State Filter Notice (Hidden by default) -->
+      <div id="no-articles-found" class="hidden text-center py-16 px-4 bg-dark-card/50 rounded-xl border border-dark-border">
+        <svg class="w-12 h-12 mx-auto text-dark-muted mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="font-display font-bold text-lg text-white mb-1">No Dispatches in this Sector</h3>
+        <p class="text-sm text-dark-muted font-mono">Adjust your radar frequency or reset to "All" news.</p>
+      </div>
+
+    </section>
+
+    <!-- Community Terminal CTA -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="relative rounded-2xl bg-gradient-to-r from-dark-card via-[#141b2c] to-dark-card border border-dark-border p-8 sm:p-12 overflow-hidden shadow-2xl">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-neon-green/10 via-transparent to-transparent"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div class="space-y-3 max-w-xl text-center lg:text-left">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded bg-dark-bg text-neon-cyan border border-neon-cyan/30 text-xs font-mono uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-neon-cyan"></span>
+              Join the Dark Lobby Syndicate
+            </span>
+            <h3 class="font-display font-black text-2xl sm:text-3xl text-white">
+              LEAK AN INTEL TIP OR JOIN OUR ESPORTS NETWORK
+            </h3>
+            <p class="text-sm text-dark-text leading-relaxed">
+              Have verified insider documentation, unreleased benchmarks, or competitive patch notes? Submit encrypted tips to our anonymous editorial inbox.
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <a
+              href="mailto:intel@darklobby.site"
+              class="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-mono font-bold uppercase tracking-wider text-black bg-neon-green hover:bg-[#1aff75] shadow-neon-green transition-all duration-200 text-center"
+            >
+              Submit Classified Intel
+            </a>
+            <a
+              href="https://discord.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-mono font-bold uppercase tracking-wider text-white bg-dark-bg border border-dark-border hover:border-neon-cyan hover:text-neon-cyan transition-all duration-200 text-center"
+            >
+              Dark Lobby Discord
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<script>
+  // Universal Client-side category filtering engine
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const articles = document.querySelectorAll('.article-item');
+  const emptyState = document.getElementById('no-articles-found');
+
+  function applyCategoryFilter(rawCategory: string, shouldScroll = false) {
+    if (!rawCategory) rawCategory = 'All';
+
+    // Normalize category string
+    const selected = rawCategory.toLowerCase().replace(/[-_]/g, ' ').trim();
+
+    // 1. Update filter button styles
+    filterButtons.forEach((btn) => {
+      const btnCat = (btn.getAttribute('data-filter') || '').toLowerCase().replace(/[-_]/g, ' ').trim();
+      const isMatch =
+        (selected === 'all' && btnCat === 'all') ||
+        (selected !== 'all' && (btnCat === selected || btnCat.includes(selected) || selected.includes(btnCat)));
+
+      if (isMatch) {
+        btn.classList.remove('bg-dark-card', 'text-dark-text', 'border-dark-border');
+        btn.classList.add('bg-neon-green', 'text-black', 'border-neon-green', 'font-bold', 'shadow-neon-green');
+      } else {
+        btn.classList.remove('bg-neon-green', 'text-black', 'border-neon-green', 'font-bold', 'shadow-neon-green');
+        btn.classList.add('bg-dark-card', 'text-dark-text', 'border-dark-border');
+      }
+    });
+
+    // 2. Filter articles grid
+    let visibleCount = 0;
+    articles.forEach((item) => {
+      const itemCategory = (item.getAttribute('data-category') || '').toLowerCase().replace(/[-_]/g, ' ').trim();
+
+      if (
+        selected === 'all' ||
+        selected === 'all news' ||
+        itemCategory === selected ||
+        itemCategory.includes(selected) ||
+        selected.includes(itemCategory) ||
+        (selected === 'updates' && itemCategory.includes('update'))
+      ) {
+        (item as HTMLElement).style.display = 'block';
+        visibleCount++;
+      } else {
+        (item as HTMLElement).style.display = 'none';
+      }
+    });
+
+    // 3. Update empty state
+    if (emptyState) {
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    }
+
+    // 4. Smooth scroll to dispatches section
+    if (shouldScroll) {
+      const dispatches = document.getElementById('dispatches');
+      if (dispatches) {
+        dispatches.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }
+
+  // Handle local filter button clicks
+  filterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const selectedCategory = button.getAttribute('data-filter') || 'All';
+      applyCategoryFilter(selectedCategory, false);
+
+      // Update URL hash without reload
+      const hash = selectedCategory === 'All' ? '' : `#${selectedCategory.toLowerCase().replace(/\s+/g, '-')}`;
+      history.replaceState(null, '', window.location.pathname + hash);
+    });
+  });
+
+  // Listen to custom filter event triggered from Navbar
+  window.addEventListener('darklobby:filter', ((e: CustomEvent) => {
+    if (e.detail && e.detail.category) {
+      applyCategoryFilter(e.detail.category, true);
+    }
+  }) as EventListener);
+
+  // Check URL search param or hash on initial load
+  function checkUrlState() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryCat = urlParams.get('category');
+    const hash = window.location.hash.replace(/^#/, '');
+
+    if (queryCat) {
+      applyCategoryFilter(queryCat, true);
+    } else if (hash && hash !== 'newsletter' && hash !== 'top') {
+      applyCategoryFilter(hash, true);
+    }
+  }
+
+  window.addEventListener('hashchange', checkUrlState);
+  checkUrlState();
+</script>

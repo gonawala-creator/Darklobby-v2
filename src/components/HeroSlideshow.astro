@@ -1,0 +1,368 @@
+---
+import { formatTimeAgo, formatFullDate } from '../utils/date';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'news'>[];
+}
+
+const { posts = [] } = Astro.props;
+
+// Take latest 5 posts for slideshow
+const slides = posts.slice(0, 5);
+
+// Category badge color helper
+const getCategoryClass = (cat: string) => {
+  const c = cat.toLowerCase();
+  if (c.includes('leak')) return 'bg-pink-500/20 text-[#ff3388] border-[#ff3388]/40 shadow-[0_0_12px_rgba(255,51,136,0.3)]';
+  if (c.includes('patch')) return 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/40 shadow-[0_0_12px_rgba(0,240,255,0.3)]';
+  if (c.includes('hardware')) return 'bg-amber-400/20 text-amber-400 border-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.3)]';
+  if (c.includes('review')) return 'bg-purple-400/20 text-purple-400 border-purple-400/40 shadow-[0_0_12px_rgba(192,132,252,0.3)]';
+  return 'bg-neon-green/20 text-neon-green border-neon-green/40 shadow-[0_0_12px_rgba(0,255,102,0.3)]';
+};
+---
+
+{slides.length > 0 && (
+  <div
+    id="hero-slideshow"
+    class="relative group rounded-2xl bg-dark-card border border-dark-border hover:border-neon-green/60 transition-all duration-300 shadow-card-elevated overflow-hidden"
+    data-total-slides={slides.length}
+    data-interval="4000"
+  >
+    <!-- Background Ambient Glow -->
+    <div class="absolute -right-20 -top-20 w-80 h-80 bg-neon-green/5 rounded-full blur-3xl pointer-events-none group-hover:bg-neon-green/10 transition-all duration-500"></div>
+
+    <!-- Top Slideshow Controller Bar (Compact) -->
+    <div class="flex items-center justify-between px-3 sm:px-5 py-2 border-b border-dark-border/40 text-xs font-mono">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 text-neon-green font-bold uppercase tracking-wider text-[10px] sm:text-[11px]">
+          <span class="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"></span>
+          FEATURED TRANSMISSION
+        </span>
+        <span class="text-dark-border">•</span>
+        <span id="slide-counter" class="text-neon-cyan font-bold text-xs">01 / 0{slides.length}</span>
+      </div>
+
+      <!-- Arrow Navigation Buttons -->
+      <div class="flex items-center gap-1.5">
+        <button
+          id="prev-slide-btn"
+          type="button"
+          class="w-7 h-7 rounded bg-dark-bg border border-dark-border flex items-center justify-center text-dark-text hover:text-neon-green hover:border-neon-green/50 transition-colors focus:outline-none"
+          aria-label="Previous Slide"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          id="next-slide-btn"
+          type="button"
+          class="w-7 h-7 rounded bg-dark-bg border border-dark-border flex items-center justify-center text-dark-text hover:text-neon-green hover:border-neon-green/50 transition-colors focus:outline-none"
+          aria-label="Next Slide"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Slides Container (Compact Height) -->
+    <div class="relative min-h-[380px] sm:min-h-[300px] lg:min-h-[260px] p-3 sm:p-4 lg:p-5">
+      {slides.map((post, idx) => {
+        const pubDateObj = new Date(post.data.pubDate);
+        const timeAgo = formatTimeAgo(pubDateObj);
+        const fullDate = formatFullDate(pubDateObj);
+
+        return (
+          <div
+            class={`hero-slide transition-opacity duration-500 ease-in-out ${idx === 0 ? 'opacity-100 relative z-10 pointer-events-auto' : 'opacity-0 absolute inset-0 p-3 sm:p-4 lg:p-5 pointer-events-none z-0'}`}
+            data-slide-index={idx}
+          >
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center">
+              
+              <!-- Hero Thumbnail (Left: 5 cols on lg, compact max height) -->
+              <div class="lg:col-span-5 relative overflow-hidden rounded-lg aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] max-h-[200px] sm:max-h-[220px] lg:max-h-[240px] bg-dark-bg border border-dark-border/60">
+                <a href={`/news/${post.slug}`} class="block w-full h-full">
+                  <img
+                    src={post.data.thumbnail}
+                    alt={post.data.title}
+                    class="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-dark-card/90 via-transparent to-transparent"></div>
+                </a>
+
+                <!-- Floating Category Tag -->
+                <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                  <span class={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md border ${getCategoryClass(post.data.category)}`}>
+                    {post.data.category}
+                  </span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-dark-bg/85 text-neon-green border border-neon-green/30 backdrop-blur-md">
+                    #{idx + 1}
+                  </span>
+                </div>
+
+                <!-- Read time pill -->
+                <div class="absolute bottom-2.5 right-2.5">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono text-white bg-dark-bg/85 backdrop-blur-md border border-dark-border">
+                    {post.data.readTime}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Hero Content (Right: 7 cols on lg, tighter spacing) -->
+              <div class="lg:col-span-7 flex flex-col justify-center space-y-2 sm:space-y-2.5">
+                
+                <!-- Meta Info (Time Ago & Author) -->
+                <div class="flex flex-wrap items-center gap-2.5 text-xs font-mono text-dark-muted">
+                  <time datetime={pubDateObj.toISOString()} class="flex items-center gap-1.5 text-neon-green">
+                    <svg class="w-3.5 h-3.5 text-neon-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+                      <polyline points="12 6 12 12 16 14" stroke-width="2"></polyline>
+                    </svg>
+                    <span class="font-bold text-white">{timeAgo}</span>
+                    <span class="text-dark-muted/70 text-[11px]">({fullDate})</span>
+                  </time>
+                  <span class="text-dark-border">•</span>
+                  <span class="text-dark-text font-medium text-xs">{post.data.author}</span>
+                </div>
+
+                <!-- Main Title (Clean, readable, responsive compact font size) -->
+                <h2 class="font-display font-extrabold text-lg sm:text-xl lg:text-2xl text-white leading-snug hover:text-neon-green transition-colors duration-200 line-clamp-2">
+                  <a href={`/news/${post.slug}`}>
+                    {post.data.title}
+                  </a>
+                </h2>
+
+                <!-- Excerpt (Clamped to 2 lines for compact height) -->
+                <p class="text-xs sm:text-sm text-dark-text leading-relaxed line-clamp-2">
+                  {post.data.description}
+                </p>
+
+                <!-- Tags & CTA row -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <div class="flex flex-wrap gap-1.5">
+                    {post.data.tags.slice(0, 3).map((tag) => (
+                      <span class="px-1.5 py-0.5 rounded bg-dark-bg border border-dark-border text-[10px] font-mono text-dark-muted">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <a
+                    href={`/news/${post.slug}`}
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold uppercase tracking-wider text-black bg-neon-green hover:bg-[#1aff75] shadow-neon-green transition-all duration-200 transform hover:translate-x-0.5"
+                  >
+                    <span>Read Dispatch</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </a>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Bottom Progress Dots & Indicators Bar (Slim) -->
+    <div class="px-3 sm:px-5 pb-3 pt-2 border-t border-dark-border/40 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2 flex-1 max-w-xs sm:max-w-sm">
+        {slides.map((_, idx) => (
+          <button
+            type="button"
+            class="slide-indicator relative flex-1 h-1.5 rounded-full bg-dark-bg border border-dark-border overflow-hidden transition-all duration-200 cursor-pointer"
+            data-target-index={idx}
+            aria-label={`Go to slide ${idx + 1}`}
+          >
+            <!-- Animated Progress Fill for Active Slide -->
+            <div
+              class="slide-progress-bar absolute inset-0 bg-neon-green transition-all duration-100 w-0"
+              style={idx === 0 ? 'width: 0%;' : 'width: 0%;'}
+            ></div>
+          </button>
+        ))}
+      </div>
+
+      <!-- 4s Timer Badge -->
+      <div class="text-[10px] font-mono text-dark-muted flex items-center gap-1.5 shrink-0">
+        <svg class="w-3 h-3 text-neon-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+          <polyline points="12 6 12 12 16 14" stroke-width="2"></polyline>
+        </svg>
+        <span>4S CYCLE</span>
+      </div>
+    </div>
+
+  </div>
+)}
+
+<script>
+  function setupSlideshow() {
+    const root = document.getElementById('hero-slideshow');
+    if (!root) return;
+
+    const slides = root.querySelectorAll('.hero-slide');
+    const indicators = root.querySelectorAll('.slide-indicator');
+    const counter = document.getElementById('slide-counter');
+    const prevBtn = document.getElementById('prev-slide-btn');
+    const nextBtn = document.getElementById('next-slide-btn');
+
+    const total = slides.length;
+    if (total <= 1) return;
+
+    let currentIndex = 0;
+    let timer: number | null = null;
+    let progressTimer: number | null = null;
+    const intervalDuration = 4000; // 4 seconds as requested
+    const stepInterval = 50;
+    let elapsed = 0;
+    let isPaused = false;
+
+    function updateProgress(percentage: number) {
+      indicators.forEach((indicator, idx) => {
+        const bar = indicator.querySelector('.slide-progress-bar') as HTMLElement;
+        if (!bar) return;
+
+        if (idx < currentIndex) {
+          bar.style.width = '100%';
+        } else if (idx === currentIndex) {
+          bar.style.width = `${percentage}%`;
+        } else {
+          bar.style.width = '0%';
+        }
+      });
+    }
+
+    function showSlide(index: number) {
+      currentIndex = (index + total) % total;
+
+      // Update Slides visibility
+      slides.forEach((slide, idx) => {
+        const el = slide as HTMLElement;
+        if (idx === currentIndex) {
+          el.classList.remove('opacity-0', 'pointer-events-none', 'z-0', 'absolute');
+          el.classList.add('opacity-100', 'pointer-events-auto', 'z-10', 'relative');
+        } else {
+          el.classList.remove('opacity-100', 'pointer-events-auto', 'z-10', 'relative');
+          el.classList.add('opacity-0', 'pointer-events-none', 'z-0', 'absolute');
+        }
+      });
+
+      // Update counter
+      if (counter) {
+        counter.textContent = `0${currentIndex + 1} / 0${total}`;
+      }
+
+      // Reset progress
+      elapsed = 0;
+      updateProgress(0);
+    }
+
+    function nextSlide() {
+      showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentIndex - 1);
+    }
+
+    function tick() {
+      if (isPaused) return;
+
+      elapsed += stepInterval;
+      const progress = Math.min(100, (elapsed / intervalDuration) * 100);
+      updateProgress(progress);
+
+      if (elapsed >= intervalDuration) {
+        nextSlide();
+      }
+    }
+
+    function startTimer() {
+      if (progressTimer) clearInterval(progressTimer);
+      progressTimer = window.setInterval(tick, stepInterval);
+    }
+
+    function resetAndStart() {
+      elapsed = 0;
+      updateProgress(0);
+      startTimer();
+    }
+
+    // Attach button events
+    nextBtn?.addEventListener('click', () => {
+      nextSlide();
+      resetAndStart();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      prevSlide();
+      resetAndStart();
+    });
+
+    // Indicator clicks
+    indicators.forEach((indicator) => {
+      indicator.addEventListener('click', () => {
+        const target = parseInt(indicator.getAttribute('data-target-index') || '0', 10);
+        showSlide(target);
+        resetAndStart();
+      });
+    });
+
+    // Pause on hover
+    root.addEventListener('mouseenter', () => {
+      isPaused = true;
+    });
+
+    root.addEventListener('mouseleave', () => {
+      isPaused = false;
+    });
+
+    // Touch swipe support for mobile
+    let touchStartX = 0;
+    root.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    root.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+        resetAndStart();
+      }
+    }, { passive: true });
+
+    // Keyboard navigation when hovered/active
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        nextSlide();
+        resetAndStart();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+        resetAndStart();
+      }
+    });
+
+    // Start cycle
+    showSlide(0);
+    startTimer();
+  }
+
+  // Initialize on DOM load and Astro page swaps
+  document.addEventListener('DOMContentLoaded', setupSlideshow);
+  // Also run if script executes after DOM is ready
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setupSlideshow();
+  }
+</script>

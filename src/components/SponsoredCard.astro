@@ -1,0 +1,96 @@
+---
+import adsData from '../content/settings/ads.json';
+
+const isGloballyEnabled = adsData && adsData.enabled;
+const feedAd = isGloballyEnabled && adsData.inFeed ? adsData.inFeed : null;
+const isVisible = feedAd && feedAd.enabled;
+---
+
+{isVisible && (
+  feedAd.type === 'script' && feedAd.script ? (
+    <article class="group relative flex flex-col justify-between bg-dark-card border border-dark-border rounded-xl overflow-hidden p-4 min-h-[360px] shadow-card-elevated">
+      <div class="flex items-center justify-between text-xs font-mono text-dark-muted mb-2">
+        <span class="flex items-center gap-1.5 text-neon-cyan uppercase tracking-widest text-[10px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-neon-cyan animate-pulse"></span>
+          SPONSORED INTEL
+        </span>
+        <span class="text-[9px]">AD NETWORK</span>
+      </div>
+      <div class="w-full flex-1 flex items-center justify-center overflow-hidden" set:html={feedAd.script} />
+    </article>
+  ) : (
+    <article class="group relative flex flex-col bg-dark-card border border-neon-cyan/40 hover:border-neon-cyan rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(0,240,255,0.2)]">
+      <!-- Top corner cyan marker -->
+      <div class="absolute top-0 right-0 w-8 h-8 pointer-events-none overflow-hidden z-10">
+        <div class="absolute top-0 right-0 w-2 h-2 bg-neon-cyan"></div>
+      </div>
+
+      <!-- Thumbnail -->
+      <a href={feedAd.url || '#'} target="_blank" rel="noopener noreferrer sponsored" class="relative aspect-video w-full overflow-hidden bg-dark-bg block" tabindex="-1">
+        <img
+          src={feedAd.image || 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?auto=format&fit=crop&w=1200&q=80'}
+          alt={feedAd.title || 'Sponsored Product'}
+          loading="lazy"
+          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-dark-card via-transparent to-transparent opacity-80"></div>
+        
+        <!-- Sponsored Badge -->
+        <div class="absolute top-3 left-3">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-mono font-bold tracking-wider uppercase border backdrop-blur-md bg-neon-cyan/20 text-neon-cyan border-neon-cyan/50 shadow-neon-cyan">
+            {feedAd.badge || 'SPONSORED DEAL'}
+          </span>
+        </div>
+
+        <div class="absolute bottom-3 right-3">
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono text-neon-cyan bg-dark-bg/80 backdrop-blur-sm border border-neon-cyan/30">
+            PARTNER RIG
+          </span>
+        </div>
+      </a>
+
+      <!-- Card Body -->
+      <div class="flex flex-1 flex-col p-5">
+        <!-- Meta row -->
+        <div class="flex items-center justify-between text-xs font-mono text-dark-muted mb-3">
+          <span class="text-neon-cyan flex items-center gap-1.5">
+            <span class="h-1.5 w-1.5 rounded-full bg-neon-cyan"></span>
+            VERIFIED HARDWARE
+          </span>
+          <span class="text-dark-text/70">{feedAd.tag || 'Special Offer'}</span>
+        </div>
+
+        <!-- Title -->
+        <h3 class="font-display font-bold text-lg leading-snug text-dark-heading group-hover:text-neon-cyan transition-colors duration-200 line-clamp-2 mb-2">
+          <a href={feedAd.url || '#'} target="_blank" rel="noopener noreferrer sponsored">
+            {feedAd.title || 'Next-Gen Cyber Battlestation Gear'}
+          </a>
+        </h3>
+
+        <!-- Description -->
+        <p class="text-sm text-dark-text line-clamp-2 leading-relaxed mb-4 flex-1">
+          {feedAd.description || 'Exclusive partner hardware offering high performance, ultra low latency, and tournament reliability.'}
+        </p>
+
+        <!-- CTA Row -->
+        <div class="pt-3 border-t border-dark-border/60 flex items-center justify-between text-xs">
+          <span class="px-2 py-0.5 rounded bg-dark-bg text-[10px] font-mono text-neon-cyan border border-neon-cyan/30">
+            #HardwareDeal
+          </span>
+          
+          <a
+            href={feedAd.url || '#'}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="inline-flex items-center gap-1 font-mono font-semibold text-xs text-neon-cyan group-hover:text-white transition-colors"
+          >
+            <span>{feedAd.ctaText || 'Claim Deal'}</span>
+            <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  )
+)}

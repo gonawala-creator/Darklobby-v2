@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "name": "All News",
+      "href": "/",
+      "category": "All",
+      "visible": true
+    },
+    {
+      "name": "Leaks",
+      "href": "/#leaks",
+      "category": "Leaks",
+      "visible": true
+    },
+    {
+      "name": "Updates",
+      "href": "/#updates",
+      "category": "Updates",
+      "visible": true
+    },
+    {
+      "name": "Patch Notes",
+      "href": "/#patch-notes",
+      "category": "Patch Notes",
+      "visible": true
+    },
+    {
+      "name": "Hardware",
+      "href": "/#hardware",
+      "category": "Hardware",
+      "visible": true
+    },
+    {
+      "name": "Reviews",
+      "href": "/#reviews",
+      "category": "Reviews",
+      "visible": true
+    }
+  ]
+}

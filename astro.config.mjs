@@ -1,0 +1,15 @@
+import { defineConfig } from 'astro/config';
+import tailwind from '@astrojs/tailwind';
+
+// https://astro.build/config
+export default defineConfig({
+  site: 'https://darklobby.site',
+  integrations: [
+    tailwind({
+      applyBaseStyles: true,
+    }),
+  ],
+  redirects: {
+    '/admin': '/admin/index.html',
+  },
+});

@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import AdBanner from '../../components/AdBanner.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { formatTimeAgo, formatFullDate } from '../../utils/date';
+
+export async function getStaticPaths() {
+  const newsEntries = await getCollection('news');
+  return newsEntries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'news'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+// Format publication date & relative time
+const pubDateObj = new Date(entry.data.pubDate);
+const timeAgo = formatTimeAgo(pubDateObj);
+const formattedDate = formatFullDate(pubDateObj);
+
+// Fetch related articles (same category or recent, excluding current)
+const allNews = await getCollection('news');
+const relatedPosts = allNews
+  .filter((post) => post.slug !== entry.slug)
+  .sort((a, b) => {
+    // Prioritize same category, then newer date
+    if (a.data.category === entry.data.category && b.data.category !== entry.data.category) return -1;
+    if (a.data.category !== entry.data.category && b.data.category === entry.data.category) return 1;
+    return new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime();
+  })
+  .slice(0, 3);
+
+// Category badge styling helper
+const getCategoryClass = (cat: string) => {
+  const c = cat.toLowerCase();
+  if (c.includes('leak')) return 'bg-pink-500/10 text-[#ff3388] border-[#ff3388]/30 shadow-[0_0_10px_rgba(255,51,136,0.3)]';
+  if (c.includes('patch')) return 'bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30 shadow-[0_0_10px_rgba(0,240,255,0.3)]';
+  if (c.includes('hardware')) return 'bg-amber-400/10 text-amber-400 border-amber-400/30 shadow-[0_0_10px_rgba(251,191,36,0.3)]';
+  if (c.includes('review')) return 'bg-purple-400/10 text-purple-400 border-purple-400/30 shadow-[0_0_10px_rgba(192,132,252,0.3)]';
+  return 'bg-neon-green/10 text-neon-green border-neon-green/30 shadow-[0_0_10px_rgba(0,255,102,0.3)]';
+};
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  image={entry.data.thumbnail}
+  articleDate={new Date(entry.data.pubDate).toISOString()}
+  currentCategory={entry.data.category}
+>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress" class="fixed top-0 left-0 h-1 bg-neon-green z-50 transition-all duration-75 w-0 shadow-[0_0_8px_rgba(0,255,102,0.8)]"></div>
+
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    
+    <!-- Top Breadcrumb & Navigation -->
+    <div class="flex items-center justify-between gap-4 mb-8 text-xs font-mono">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-dark-text hover:text-neon-green transition-colors group px-3 py-1.5 rounded bg-dark-card border border-dark-border hover:border-neon-green/40"
+      >
+        <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to All Dispatches</span>
+      </a>
+
+      <div class="hidden sm:flex items-center gap-2 text-dark-muted">
+        <span>ARCHIVE</span>
+        <span>/</span>
+        <span class="text-neon-cyan uppercase">{entry.data.category}</span>
+        <span>/</span>
+        <span>SYS#{entry.slug.slice(0, 8)}</span>
+      </div>
+    </div>
+
+    <!-- Article Header -->
+    <header class="space-y-4 mb-8">
+      
+      <!-- Category & Read Time Badges -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class={`inline-flex items-center px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider border ${getCategoryClass(entry.data.category)}`}>
+          {entry.data.category}
+        </span>
+        <span class="px-2.5 py-1 rounded text-xs font-mono bg-dark-card text-dark-text border border-dark-border">
+          {entry.data.readTime}
+        </span>
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-white leading-[1.15] tracking-tight">
+        {entry.data.title}
+      </h1>
+
+      <!-- Excerpt / Subheading -->
+      <p class="text-base sm:text-lg text-dark-text leading-relaxed font-sans">
+        {entry.data.description}
+      </p>
+
+      <!-- Author Card & Date Bar -->
+      <div class="pt-4 border-t border-dark-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono">
+        <div class="flex items-center gap-3">
+          <!-- Author Avatar Placeholder / Cyber Glyph -->
+          <div class="w-10 h-10 rounded-full bg-dark-card border border-dark-border flex items-center justify-center text-neon-green font-bold text-sm">
+            {entry.data.author.charAt(0)}
+          </div>
+          <div>
+            <div class="text-white font-semibold text-sm">{entry.data.author}</div>
+            <div class="text-dark-muted text-[11px]">Senior Gaming Correspondent</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 text-dark-muted">
+          <time datetime={pubDateObj.toISOString()} class="flex items-center gap-1.5 text-neon-green">
+            <svg class="w-4 h-4 text-neon-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+              <polyline points="12 6 12 12 16 14" stroke-width="2"></polyline>
+            </svg>
+            <span class="font-bold text-white/95">{timeAgo}</span>
+            <span class="text-dark-muted text-xs">({formattedDate})</span>
+          </time>
+
+          <!-- Copy Transmission Link Button -->
+          <button
+            id="share-btn"
+            type="button"
+            class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-dark-card border border-dark-border text-dark-text hover:text-neon-cyan hover:border-neon-cyan/40 transition-colors"
+            title="Copy Intel Link"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="share-text">Copy Link</span>
+          </button>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- Main Featured Article Image -->
+    <div class="relative rounded-2xl overflow-hidden border border-dark-border mb-10 shadow-card-elevated aspect-[16/9] sm:aspect-[21/9] bg-dark-bg">
+      <img
+        src={entry.data.thumbnail}
+        alt={entry.data.title}
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-dark-bg/60 via-transparent to-transparent"></div>
+    </div>
+
+    <!-- In-Article Sponsored Transmission Banner -->
+    <AdBanner slotType="inArticle" class="mb-8" />
+
+    <!-- Article Markdown Content with Tailored Cyber Prose Styling -->
+    <div class="prose prose-invert prose-slate lg:prose-lg max-w-none
+      prose-headings:font-display prose-headings:font-bold prose-headings:text-white prose-headings:tracking-wide
+      prose-h2:text-2xl prose-h2:border-b prose-h2:border-dark-border prose-h2:pb-2 prose-h2:mt-10
+      prose-h3:text-xl prose-h3:text-neon-cyan prose-h3:mt-8
+      prose-p:text-dark-text prose-p:leading-relaxed
+      prose-strong:text-white prose-strong:font-semibold
+      prose-a:text-neon-green prose-a:no-underline hover:prose-a:underline
+      prose-blockquote:border-l-4 prose-blockquote:border-neon-green prose-blockquote:bg-dark-card/60 prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:text-white prose-blockquote:font-medium prose-blockquote:not-italic
+      prose-code:text-neon-cyan prose-code:bg-dark-card prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:border prose-code:border-dark-border
+      prose-pre:bg-dark-card prose-pre:border prose-pre:border-dark-border prose-pre:rounded-xl prose-pre:p-5 prose-pre:font-mono prose-pre:text-sm prose-pre:shadow-inner
+      prose-li:text-dark-text
+      prose-table:border-collapse prose-table:w-full prose-table:text-sm prose-table:my-6
+      prose-th:bg-dark-card prose-th:text-white prose-th:font-display prose-th:p-3 prose-th:border prose-th:border-dark-border prose-th:text-left
+      prose-td:p-3 prose-td:border prose-td:border-dark-border prose-td:text-dark-text
+      prose-tr:even:bg-dark-card/40
+    ">
+      <Content />
+    </div>
+
+    <!-- Tags Row -->
+    <div class="mt-12 pt-6 border-t border-dark-border/60 flex items-center gap-2 flex-wrap">
+      <span class="text-xs font-mono text-dark-muted mr-2">SEC-TAGS:</span>
+      {entry.data.tags.map((tag) => (
+        <span class="px-2.5 py-1 rounded bg-dark-card text-xs font-mono text-neon-green border border-dark-border hover:border-neon-green/40 transition-colors">
+          #{tag}
+        </span>
+      ))}
+    </div>
+
+    <!-- Author Dispatch Signature Box -->
+    <div class="mt-8 p-6 rounded-xl bg-dark-card border border-dark-border flex flex-col sm:flex-row items-center sm:items-start gap-5">
+      <div class="w-14 h-14 rounded-full bg-dark-bg border border-dark-border flex items-center justify-center text-neon-green font-display text-xl font-bold shrink-0">
+        {entry.data.author.charAt(0)}
+      </div>
+      <div class="space-y-1 text-center sm:text-left">
+        <h4 class="font-display font-bold text-white text-base">Dispatch Filed by {entry.data.author}</h4>
+        <p class="text-xs text-dark-muted font-mono">SENIOR GAMING CORRESPONDENT // DARK LOBBY EDITORIAL BUREAU</p>
+        <p class="text-xs text-dark-text pt-2 leading-relaxed">
+          Specializing in insider game development disclosures, competitive esports telemetry, and next-generation graphics pipelines.
+        </p>
+      </div>
+    </div>
+
+    <!-- Post-Article Sponsored Hardware Recommendation Banner -->
+    <AdBanner slotType="footer" class="my-10" />
+
+    <!-- Related Articles Section -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-16 pt-10 border-t border-dark-border/60">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <span class="text-xs font-mono text-neon-cyan uppercase tracking-widest block mb-1">
+              CONTINUED RECONNAISSANCE
+            </span>
+            <h3 class="font-display font-black text-xl sm:text-2xl text-white">
+              RELATED <span class="text-neon-green">DISPATCHES</span>
+            </h3>
+          </div>
+          <a
+            href="/"
+            class="text-xs font-mono text-neon-green hover:underline flex items-center gap-1"
+          >
+            View All Dispatches →
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedPosts.map((post) => (
+            <NewsCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              category={post.data.category}
+              thumbnail={post.data.thumbnail}
+              author={post.data.author}
+              slug={post.slug}
+              tags={post.data.tags}
+              readTime={post.data.readTime}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+  </article>
+</BaseLayout>
+
+<script>
+  // Reading progress bar calculation
+  window.addEventListener('scroll', () => {
+    const progressBar = document.getElementById('reading-progress');
+    if (!progressBar) return;
+
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+    progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+  });
+
+  // Copy Link button interaction
+  const shareBtn = document.getElementById('share-btn');
+  const shareText = document.getElementById('share-text');
+
+  if (shareBtn && shareText) {
+    shareBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        const original = shareText.textContent;
+        shareText.textContent = 'Copied!';
+        shareBtn.classList.add('text-neon-green', 'border-neon-green');
+        setTimeout(() => {
+          shareText.textContent = original;
+          shareBtn.classList.remove('text-neon-green', 'border-neon-green');
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy', err);
+      }
+    });
+  }
+</script>
